@@ -5,39 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="032c73f4-d4e8-407e-b08e-5dcf168a05f4" name="变更" comment="init">
-      <change afterPath="$PROJECT_DIR$/../../jd-server/app/routes/order.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pnpm-lock.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/config.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/context/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/db/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/env/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/env/.env.example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/routes/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/routes/user/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/types/context.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/types/koa-body.d.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/utils/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/config/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/config/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/db/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/db/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/index.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/index.d.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/routes/comment.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/routes/comment.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/routes/commodity.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/routes/commodity.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/routes/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/routes/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/routes/shopping-cart.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/routes/shopping-cart.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/routes/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/routes/user.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/tool/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/tool/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/app/vri/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/app/vri/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../../jd-server/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../jd-server/yarn.lock" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ .gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/ .gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/think-tanks.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/think-tanks.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -96,7 +64,7 @@
       <workItem from="1675736980965" duration="824000" />
       <workItem from="1675737827607" duration="1859000" />
       <workItem from="1675739704948" duration="4868000" />
-      <workItem from="1675755183663" duration="948000" />
+      <workItem from="1675755183663" duration="1254000" />
     </task>
     <task id="LOCAL-00001" summary="init">
       <created>1675737427845</created>
@@ -112,7 +80,14 @@
       <option name="project" value="LOCAL" />
       <updated>1675737443540</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="init">
+      <created>1675756251583</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1675756251583</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -130,6 +105,7 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="init" />
     <option name="LAST_COMMIT_MESSAGE" value="init" />
