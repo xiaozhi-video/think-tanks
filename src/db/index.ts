@@ -1,7 +1,14 @@
-const { Flq } = require('flq')
+import { Flq } from 'flq'
+import {db} from '../config'
 const flq = new Flq({
   pool: true, // 使用连接池 !推荐使用
-  user: 'root', // 登陆用户
-  password: process.env.SQLPASSWORD, // 登陆密码
-  database: 'test', // 数据库名
+  ...db
 })
+
+flq.setModel({
+  user: {
+
+  }
+})
+
+export default flq

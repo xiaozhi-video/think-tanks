@@ -1,8 +1,10 @@
+import { any } from 'joi'
 import Koa from 'koa'
 import koaBody from 'koa-body'
 import cors from 'koa2-cors'
 import { port } from './config'
 import * as context from './context/index'
+import error from './error/error'
 // import { getUser } from './tool/user.js'
 import router from './routes/index'
 import { log } from './utils'
@@ -18,6 +20,8 @@ Object.entries(context).forEach((e) => {
   app.context[e[0]] = e[1]
 })
 
+app.use(koaBody())
+
 app.use(async (ctx, next) => {
   // ctx.state.user = await getUser(ctx)
   log(
@@ -31,12 +35,16 @@ app.use(async (ctx, next) => {
     },
     true,
   )
-  await next()
-  if(!ctx.body) ctx.error(404)
+  try {
+    await next()
+  } catch (err) {
+    error(ctx, err)
+    console.error(err)
+  }
+  if(!ctx.body) ctx.custom(404, '找不到路由')
 })
-app.use(koaBody())
 
-app.use(router)
+app.use(router.routes())
 
 app.listen(port, () => {
   console.log(

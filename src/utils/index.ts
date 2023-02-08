@@ -24,7 +24,7 @@ export function getDate() {
   return new Date().toLocaleString()
 }
 
-export function log(text: string, obj: Object, bool: boolean) {
+export function log(text: string, obj: Object, bool?: boolean) {
   // @ts-ignore
   let str = (text + ': ').green
   if(bool) { // @ts-ignore
@@ -35,4 +35,12 @@ export function log(text: string, obj: Object, bool: boolean) {
     str += '\n' + (k + ': ').brightYellow + obj[k]
   }
   console.log(str + '\n')
+}
+
+export function awaitTime(time: number): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve()
+    }, time)
+  })
 }
