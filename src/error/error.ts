@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import { ParameterError, PermissionError } from './index'
+import { NoResourcesError, ParameterError, PermissionError } from './index'
 
 export default async function(ctx: Context, error: any) {
   if(error instanceof ParameterError) {
@@ -9,12 +9,20 @@ export default async function(ctx: Context, error: any) {
       detail: error.message
     }
   } else if(error instanceof PermissionError) {
-    ctx.status = 403;
+    ctx.status = 401;
     ctx.body = {
       message: '无权访问资源',
       detail: error.message
     }
+  } else if(error instanceof NoResourcesError) {
+    ctx.status = 405;
+    ctx.body = {
+      message: '找不到资源',
+      detail: error.message
+    }
   } else {
+    // console.error(error.message)
+    console.error(error)
     ctx.status = 500;
     ctx.body = '未知错误'
   }

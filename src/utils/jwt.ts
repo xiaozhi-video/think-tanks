@@ -1,8 +1,8 @@
-import jsonwebtoken from 'jsonwebtoken'
-import Koa, { DefaultContext, DefaultState } from "koa"
+import jwt from 'jsonwebtoken'
+import Koa, { DefaultContext, DefaultState, Middleware } from "koa"
 import { jwtKey } from '../config'
+import { admin, user } from '../db/table'
 import { PermissionError } from '../error'
-import { user } from '../db/table'
 
 function getToken(ctx: DefaultState): string | void {
   const field = 'Bearer '
@@ -20,49 +20,93 @@ function getToken(ctx: DefaultState): string | void {
   return token
 }
 
+export function sing(a: string | Object) {
+  return jwt.sign(a, jwtKey, { expiresIn: 60 * 60 * 24 * 7 })
+}
+
 export interface AuthUserOptions {
   permission?: string
-  optional?: boolean
+  optional?: boolean,
+  authButton?: string
 }
 
 export interface AuthUser {
-  // permissions?: string[]
+  permissions?: string[]
   userId: number
   nickname: string
   phone: string
+  avatar: string
+  signature: string
 }
 
-export type AuthUserContext = DefaultContext & { authUser: AuthUser }
+export interface AuthAdmin {
+  permissions?: string[]
+  adminId: number
+  nickname: string
+  photo: string
+}
 
-export default function authUser(options: AuthUserOptions): Koa.Middleware<DefaultState, AuthUserContext, any> {
-  return async (ctx: AuthUserContext, next: () => Promise<void>) => {
+export interface AuthUserContext extends Koa.DefaultContext {
+  authUser: AuthUser
+}
+
+export interface AuthAdminContext extends DefaultContext {
+  authAdmin: AuthAdmin
+}
+
+export function authUser<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthUserContext> {
+  return authToken(options, async ({ userId, type }, ctx) => {
+    if(type !== 'user') throw new PermissionError('无效用户组')
+    const userInfo = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'avatar', 'permissions' ]).first()
+    ctx.authUser = userInfo
+    return userInfo
+  })
+}
+
+export function authAdmin<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthAdminContext> {
+  return authToken(options, async ({ adminId, type }, ctx) => {
+    if(type !== 'admin') throw new PermissionError('无效用户组')
+    const adminInfo = await admin.where({ adminId }).field([ 'adminId', 'permissions', 'nickname', 'photo', 'authButton' ]).first()
+    ctx.authAdmin = adminInfo
+    return adminInfo
+  })
+}
+
+function authToken(options: AuthUserOptions, callBack: (a: any, b: any) => Promise<any>) {
+  return async (ctx: DefaultContext, next: () => Promise<void>) => {
     const token = getToken(ctx)
-    const { permission, optional } = options
+    const { permission, optional, authButton } = options
     if(!token) {
-      if(optional) {
-        throw new PermissionError()
-      } else {
-        return next()
+      if(!optional) {
+        throw new PermissionError('未登录')
       }
+      return await next()
     }
     let info: any
     try {
-      info = jsonwebtoken.verify(jwtKey, token)
+      info = jwt.verify(token, jwtKey)
     } catch(err: any) {
-      if(optional) {
+      if(!optional) {
         throw new PermissionError(err.message)
       } else {
-        return next()
+        return await next()
       }
     }
-    const { id } = info
-    const userInfo = await user.where({ user_id: id }).first()
+    const userInfo = await callBack(info, ctx)
     if(!userInfo) {
-      if(optional) {
+      if(!optional) {
         throw new PermissionError('无效token')
-      } else {
-        return next()
       }
     }
+
+    if(optional) return await next()
+
+    if(permission && !userInfo.permissions.includes(permission) && !userInfo.permissions.includes('superAdmin')) {
+      throw new PermissionError('权限不足')
+    }
+    if(authButton && !userInfo.authButton.includes(authButton)) {
+      throw new PermissionError('权限不足')
+    }
+    await next()
   }
 }

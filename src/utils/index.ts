@@ -24,10 +24,9 @@ export function getDate() {
   return new Date().toLocaleString()
 }
 
-export function log(text: string, obj: Object, bool?: boolean) {
-  // @ts-ignore
+export function klog(text: string, obj: Object, bool?: boolean) {
   let str = (text + ': ').green
-  if(bool) { // @ts-ignore
+  if(bool) {
     str += `[${ module.exports.getDate() }]`.cyan
   }
   for(const k in obj) {
