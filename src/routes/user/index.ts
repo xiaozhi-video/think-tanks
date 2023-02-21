@@ -2,18 +2,23 @@
 import md5 from 'md5'
 import { node_env, os } from '../../config'
 import { admin, user, video } from '../../db/table'
-import { NoResourcesError, PermissionError } from '../../error'
+import { AccountBanningError, NoResourcesError, PermissionError } from '../../error'
 import authCode from '../../utils/code'
-import { authUser, sing } from '../../utils/jwt'
+import { authAdmin, authUser, sing } from '../../utils/jwt'
 import Router from '../../utils/Router'
 import sendCode from '../../utils/sendCode'
 import {
+  schemaBanned,
   schemaChangeAvatar,
-  schemaFromId,
+  schemaChangeNickname,
+  schemaChangeSignature,
+  schemaList,
   schemaLogin,
   schemaMyVideo,
+  schemaPutInfo,
   schemaRegister,
   schemaSendCode,
+  schemaVideoFromId,
 } from './verify'
 
 const router = new Router()
@@ -33,6 +38,7 @@ router.post('/register', schemaRegister, async (ctx) => {
       phone,
       nickname,
       password: md5(password),
+      createdAt: new Date,
     }).add()
     authCode.destroy(phone)
     ctx.succeed({ message: 'success' })
@@ -52,6 +58,9 @@ router.post('/login', schemaLogin, async (ctx) => {
     password: md5(password),
   }).first()
   if(!res) throw new NoResourcesError('账号或密码错误')
+  if(res.banned) {
+    throw new AccountBanningError()
+  }
   const token = sing({ userId: res.userId, type: 'user' })
   ctx.succeed({
     token,
@@ -77,9 +86,18 @@ router.post('/sendCode', schemaSendCode, async (ctx) => {
 
 router.get('/myInfo', authUser(), async (ctx) => {
   const { userId } = ctx.authUser
-  ctx.succeed(ctx.authUser)
   const data = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'avatar', 'permissions', 'signature' ]).vget([ 'videoCount' ]).first()
   ctx.succeed(data)
+})
+
+router.put('/myInfo', schemaPutInfo, authUser(), async (ctx) => {
+  const { userId } = ctx.authUser
+  const { nickname, signature } = ctx.verify
+  const data = await user.where({ userId }).set({
+    nickname,
+    signature,
+  }).update()
+  ctx.succeed()
 })
 
 router.put('/avatar', schemaChangeAvatar, authUser(), async (ctx) => {
@@ -87,6 +105,24 @@ router.put('/avatar', schemaChangeAvatar, authUser(), async (ctx) => {
     userId: ctx.authUser.userId,
   }).set({
     avatar: ctx.verify.avatar,
+  }).update()
+  ctx.succeed()
+})
+
+router.put('/nickname', schemaChangeNickname, authUser(), async (ctx) => {
+  const { affectedRows } = await user.where({
+    userId: ctx.authUser.userId,
+  }).set({
+    nickname: ctx.verify.nickname,
+  }).update()
+  ctx.succeed()
+})
+
+router.put('/signature', schemaChangeSignature, authUser(), async (ctx) => {
+  const { affectedRows } = await user.where({
+    userId: ctx.authUser.userId,
+  }).set({
+    signature: ctx.verify.signature,
   }).update()
   ctx.succeed()
 })
@@ -105,7 +141,7 @@ router.get('/video', schemaMyVideo, authUser(), async (ctx) => {
   ctx.succeed(data)
 })
 
-router.get('/video/fromId', schemaFromId, authUser(), async (ctx) => {
+router.get('/video/fromId', schemaVideoFromId, authUser(), async (ctx) => {
   const { videoId } = ctx.verify
   const { userId } = ctx.authUser
   const data = await video.where({ videoId, userId }).first()
@@ -116,6 +152,37 @@ router.get('/video/fromId', schemaFromId, authUser(), async (ctx) => {
   data.videoUrl = videoUrl.replace(os.videoAsstesBaseUrl, '')
   if(!data) throw new NoResourcesError('找不到视频')
   ctx.succeed({ data })
+})
+
+router.get('/list', schemaList, authAdmin({
+  permission: 'userList',
+}), async (ctx) => {
+  const { pageNumber, pageSize, banned, keyWord } = ctx.verify
+  let flq = await user.limit({ page: pageNumber, size: pageSize })
+  if(keyWord) {
+    flq = flq.where({
+      nickname: `%${ keyWord }%`,
+      signature: `%${ keyWord }%`,
+    }, 'OR', 'LIKE')
+  }
+  if(typeof banned === 'number') {
+    flq = flq.where({
+      banned,
+    })
+  }
+  const data = await flq.findRows()
+  ctx.succeed(data)
+})
+
+router.put('/banned', schemaBanned, authAdmin({
+  permission: 'userList',
+}), async (ctx) => {
+  const { userId, banned } = ctx.verify
+  const { affectedRows } = await user.where({ userId }).set({
+    banned,
+  }).update()
+  if(!affectedRows) throw new NoResourcesError('无效用户')
+  ctx.succeed()
 })
 
 export default router.routes()

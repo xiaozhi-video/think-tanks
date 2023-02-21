@@ -1,5 +1,5 @@
 import { Context } from "koa";
-import { NoResourcesError, ParameterError, PermissionError } from './index'
+import { AccountBanningError, NoResourcesError, ParameterError, PermissionError } from './index'
 
 export default async function(ctx: Context, error: any) {
   if(error instanceof ParameterError) {
@@ -18,6 +18,12 @@ export default async function(ctx: Context, error: any) {
     ctx.status = 405;
     ctx.body = {
       message: '找不到资源',
+      detail: error.message
+    }
+  } else if(error instanceof AccountBanningError) {
+    ctx.status = 406;
+    ctx.body = {
+      message: '账户已被封禁',
       detail: error.message
     }
   } else {

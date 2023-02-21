@@ -12,7 +12,7 @@ export const videoCollection = flq.from('video_collection')
 
 export const comment = flq.from('comment')
 
-export const like = flq.from('like')
+export const like = flq.from('`like`')
 
 export const collection = flq.from('collection')
 

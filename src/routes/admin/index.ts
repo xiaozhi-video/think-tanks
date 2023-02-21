@@ -1,17 +1,19 @@
 // @ts-ignore
 import md5 from 'md5'
-import { nanoid } from 'nanoid'
-import { admin, video } from '../../db/table'
+import { os } from '../../config'
+import { admin, user, video } from '../../db/table'
 import { NoResourcesError, PermissionError } from '../../error'
 import { authAdmin, authUser, sing } from '../../utils/jwt'
 import Router from '../../utils/Router'
 import {
+  schemaChangePhoto,
   schemaEdit,
   schemaFromId,
   schemaList,
   schemaLogin,
   schemaRegister,
-  schemaVideo, schemaVideoFromId,
+  schemaVideo,
+  schemaVideoFromId,
 } from './verify'
 
 const router = new Router()
@@ -49,6 +51,15 @@ router.get('/info', authAdmin(), (ctx) => {
   ctx.succeed(ctx.authAdmin)
 })
 
+router.put('/photo', schemaChangePhoto, authAdmin(), async (ctx) => {
+  const { affectedRows } = await user.where({
+    adminId: ctx.authAdmin.adminId,
+  }).set({
+    photo: ctx.verify.photo,
+  }).update()
+  ctx.succeed()
+})
+
 router.put('/', schemaEdit, authAdmin(), async (ctx) => {
   const { adminId } = ctx.authAdmin
   const { nickname, photo } = ctx.verify
@@ -56,7 +67,6 @@ router.put('/', schemaEdit, authAdmin(), async (ctx) => {
   ctx.succeed()
 })
 
-// TODO: 建议用数据库校验超级管理员
 router.del('/', schemaFromId, authAdmin({
   permission: 'adminList',
 }), async (ctx) => {
@@ -66,16 +76,24 @@ router.del('/', schemaFromId, authAdmin({
   ctx.succeed()
 })
 
+function randomString(e = 8) {
+  const t = "abcdefhijkmnprstwxyz0123456789",
+    l = t.length
+  let n = ""
+  for(let i = 0; i < e; i++) n += t.charAt(Math.floor(Math.random() * l))
+  return n
+}
+
 router.post('/resetPassword', schemaFromId, authAdmin({
   permission: 'adminEdit',
 }), async (ctx) => {
   const { adminId } = ctx.verify
-  const np = nanoid()
+  const np = randomString()
   const mnp = md5(np)
   await admin.where({
     adminId,
   }).set({ password: mnp }).update()
-  ctx.succeed()
+  ctx.succeed({ password: np })
 })
 
 router.get('/list', schemaList, authAdmin({
@@ -112,7 +130,7 @@ router.get('/video', schemaVideo, async (ctx) => {
   let flq = video.limit({
     size: pageSize,
     page: pageNumber,
-  }).order({ createdAt: -1 }).vget([ 'user' ])
+  }).order({ sortValue: -1, createdAt: -1 }).vget([ 'user' ])
   if(keyWord) {
     flq = flq.where({ title: `%${ keyWord }%`, describe: `%${ keyWord }%` }, 'OR', 'LIKE')
   }
@@ -127,7 +145,9 @@ router.get('/video', schemaVideo, async (ctx) => {
       classify,
     })
   }
-  const data = await flq.findRows()
+  const data = await flq.where({
+    deleteAt: 0,
+  }).findRows()
   ctx.succeed(data)
 })
 
@@ -136,6 +156,14 @@ router.get('/video/fromId', schemaVideoFromId, authAdmin(), async (ctx) => {
   const data = await video.where({ videoId }).vget([ 'user' ]).first()
   if(!data) throw new NoResourcesError('找不到视频')
   ctx.succeed({ data })
+})
+
+router.get('/video/cover', schemaVideoFromId, authAdmin(), async (ctx) => {
+  const { videoId } = ctx.verify
+  const data = await video.where({ videoId }).first()
+  if(!data) throw new NoResourcesError('找不到视频')
+  const coverPreview = data.cover.replace('!video.cover', '')
+  ctx.succeed({ cover: coverPreview.replace(os.imageAsstesBaseUrl, ''), coverPreview })
 })
 
 export default router.routes()

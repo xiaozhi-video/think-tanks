@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import Koa, { DefaultContext, DefaultState, Middleware } from "koa"
 import { jwtKey } from '../config'
 import { admin, user } from '../db/table'
-import { PermissionError } from '../error'
+import { AccountBanningError, NoResourcesError, PermissionError } from '../error'
 
 function getToken(ctx: DefaultState): string | void {
   const field = 'Bearer '
@@ -56,8 +56,11 @@ export interface AuthAdminContext extends DefaultContext {
 
 export function authUser<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthUserContext> {
   return authToken(options, async ({ userId, type }, ctx) => {
-    if(type !== 'user') throw new PermissionError('无效用户组')
+    if(type !== 'user' && !options.optional) throw new PermissionError('无效用户组')
     const userInfo = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'avatar', 'permissions' ]).first()
+    if(userInfo.banned) {
+      throw new AccountBanningError()
+    }
     ctx.authUser = userInfo
     return userInfo
   })
@@ -65,7 +68,7 @@ export function authUser<ContextT = Koa.DefaultContext>(options: AuthUserOptions
 
 export function authAdmin<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthAdminContext> {
   return authToken(options, async ({ adminId, type }, ctx) => {
-    if(type !== 'admin') throw new PermissionError('无效用户组')
+    if(type !== 'admin' && !options.optional) throw new PermissionError('无效用户组')
     const adminInfo = await admin.where({ adminId }).field([ 'adminId', 'permissions', 'nickname', 'photo', 'authButton' ]).first()
     ctx.authAdmin = adminInfo
     return adminInfo
@@ -87,6 +90,7 @@ function authToken(options: AuthUserOptions, callBack: (a: any, b: any) => Promi
       info = jwt.verify(token, jwtKey)
     } catch(err: any) {
       if(!optional) {
+        console.log(token, err.message)
         throw new PermissionError(err.message)
       } else {
         return await next()

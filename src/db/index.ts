@@ -6,6 +6,8 @@ const
   flq = new Flq({
     pool: true, // 使用连接池 !推荐使用
     ...db,
+    // @ts-ignore
+    connectionLimit: 10,
   })
 
 flq.setModel({
@@ -88,7 +90,7 @@ flq.setModel({
     topReply: {
       async get({ commentId }) {
         const fq: Flq = flq.from('comment').where({ topCommentId: commentId })
-        return await fq.order([ 'isAuthor' ], 'ASC').first()
+        return await fq.order([ 'isAuthor', 'createdAt' ], -1).first()
       },
     },
     replyUser: {
@@ -109,6 +111,7 @@ flq.setModel({
       postreat: value => os.imageAsstesBaseUrl + value + '!video.cover',
     },
   },
+  '`like`': {}
 })
 
 hooks.on('format', (a: any) => {

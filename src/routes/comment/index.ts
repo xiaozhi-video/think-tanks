@@ -60,7 +60,7 @@ router.del('/', schemaDel, authUser(), async (ctx) => {
 
 router.get('/video', schemaVideo, async (ctx) => {
   const { videoId, pageSize, pageNumber } = ctx.verify
-  const data = await comment.where({ videoId, topCommentId: { com: 'IS NULL' } }).limit({
+  const data = await comment.where({ videoId, topCommentId: { com: 'IS NULL' } }).order({ createdAt: -1 }).limit({
     size: pageSize,
     page: pageNumber,
   }).vget([ 'topReply', 'user' ]).findRows()
@@ -69,7 +69,7 @@ router.get('/video', schemaVideo, async (ctx) => {
 
 router.get('/reply', schemaGetReply, async (ctx) => {
   const { commentId, pageSize, pageNumber } = ctx.verify
-  const data = await comment.where({ topCommentId: commentId }).vget([ 'user', 'replyUser' ]).limit({
+  const data = await comment.where({ topCommentId: commentId }).order({ createdAt: -1 }).vget([ 'user', 'replyUser' ]).limit({
     size: pageSize,
     page: pageNumber,
   }).findRows()

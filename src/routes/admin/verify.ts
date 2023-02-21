@@ -1,9 +1,8 @@
 import Joi from "joi"
-import verify, { page } from '../../verify'
+import verify, { imgUrl, keyWord, page } from '../../verify'
 
 const password = Joi.string().required().min(8).max(16).error(new Error('无效密码'))
 const nickname = Joi.string().required().min(2).max(16).error(new Error('无效昵称'))
-const keyWord = Joi.string().min(0).max(128).error(new Error('无效关键词'))
 
 export const schemaLogin = verify({
   nickname,
@@ -20,9 +19,13 @@ export const schemaEdit = verify({
   photo: Joi.string().required().max(64).error(new Error('无效头像')),
 })
 
+export const schemaChangePhoto = verify({
+  photo: imgUrl,
+})
+
 export const schemaList = verify({
   keyWord,
-  permission: Joi.string().max(32).error(new Error('无效权限')),
+  permission: Joi.string().min(0).max(32).error(new Error('无效权限')),
   ...page,
 })
 
