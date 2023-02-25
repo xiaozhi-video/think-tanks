@@ -1,11 +1,13 @@
 import { sql } from 'flq'
 import Joi from 'joi'
 import { nanoid } from 'nanoid'
-import { classify, like, video, videoCollection } from '../../db/table'
+import { bullet, classify, history, like, video, videoCollection } from '../../db/table'
 import { NoResourcesError, ParameterError } from '../../error'
 import { authAdmin, authUser } from '../../utils/jwt'
 import Router from '../../utils/Router'
 import verify, { page, VerifyContext } from '../../verify'
+import { recoveryHistory, removeHistory } from '../history/utils'
+import { recoveryLike, removeLike } from '../like/utils'
 import { schemaFromId, schemaModify, schemaSchema, schemaSubmit } from './verify'
 
 const router = new Router
@@ -63,10 +65,24 @@ router.put('/push', schemaFromId, authUser(), async (ctx) => {
   const { userId } = ctx.authUser
   const { videoId } = ctx.verify
   const { affectedRows } = await video.where({ videoId, userId }).set({
-    state: 0,
+    state: 1,
     updateAt: new Date(),
   }).update()
   if(!affectedRows) throw new NoResourcesError()
+  recoveryHistory(videoId)
+  recoveryLike(videoId)
+  ctx.succeed()
+})
+
+router.put('/cancel', schemaFromId, authUser(), async (ctx) => {
+  const { userId } = ctx.authUser
+  const { videoId } = ctx.verify
+  const { affectedRows } = await video.where({ userId, videoId }).set({
+    state: 0,
+  }).update()
+  if(!affectedRows) throw new NoResourcesError('找不到视频')
+  removeHistory(videoId)
+  removeLike(videoId)
   ctx.succeed()
 })
 
@@ -97,6 +113,8 @@ router.del('/', schemaFromId, authUser(), async (ctx) => {
     state: 0,
   }).update()
   if(!affectedRows) throw new NoResourcesError()
+  removeHistory(videoId)
+  removeLike(videoId)
   ctx.succeed()
 })
 
@@ -131,9 +149,27 @@ router.get('/fromId', schemaFromId, authUser({
   if(!data) throw new NoResourcesError('找不到视频')
   if(ctx.authUser) {
     const { userId } = ctx.authUser
-    const isLike = await like.where({ userId, videoId }).count()
-    data.isLike = isLike
+    data.isLike = await like.where({ userId, videoId }).count()
+    const asyncF = async () => {
+      const where = {
+        userId,
+        videoId,
+      }
+      const value = {
+        videoId,
+        userId,
+        createdAt: new Date(),
+      }
+      const { affectedRows } = await history.where(where).set(value).update()
+      if(!affectedRows) {
+        await history.where(where).value(value).add()
+      }
+    }
+    asyncF()
   }
+  const bulletList = await bullet.where({ videoId }).order({ time: 1 }).find()
+  data.bulletList = bulletList
+  data.bulletCount = bulletList.length
   await video.where({ videoId }).set({ readCount: sql(`readCount + 1`) }).update()
   ctx.succeed({ data })
 })
@@ -149,16 +185,6 @@ router.put('/audit', schemaFromId, authAdmin({
   ctx.succeed()
 })
 
-router.put('/cancel', schemaFromId, authUser(), async (ctx) => {
-  const { userId } = ctx.authUser
-  const { videoId } = ctx.verify
-  const { affectedRows } = await video.where({ userId, videoId }).set({
-    state: 0,
-  }).update()
-  if(!affectedRows) throw new NoResourcesError('找不到视频')
-  ctx.succeed()
-})
-
 router.put('/unpush', schemaFromId, authAdmin({
   permission: 'videoList',
 }), async (ctx) => {
@@ -167,6 +193,7 @@ router.put('/unpush', schemaFromId, authAdmin({
     state: 0,
   }).update()
   if(!affectedRows) throw new NoResourcesError('找不到视频')
+  history.where({ videoId }).remove()
   ctx.succeed()
 })
 

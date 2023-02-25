@@ -1,5 +1,5 @@
 import Joi from "joi"
-import verify, { page } from '../../verify'
+import verify, { page, videoId } from '../../verify'
 
 const submit = {
   cover: Joi.string().required().min(1).max(128).error(new Error('无效封面')),
@@ -14,7 +14,7 @@ export const schemaSubmit = verify(submit)
 
 export const schemaModify = verify({
   ...submit,
-  videoId: Joi.string().required().min(1).max(32).error(new Error('无效id')),
+  videoId
 })
 
 export const schemaSchema = verify({
@@ -24,5 +24,5 @@ export const schemaSchema = verify({
 })
 
 export const schemaFromId = verify({
-  videoId: Joi.string().max(64).error(new Error('无效视频'))
+  videoId
 })

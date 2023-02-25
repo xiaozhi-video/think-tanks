@@ -1,6 +1,6 @@
 import { Flq, hooks } from 'flq'
 import { db, os } from '../config'
-import { comment, permissions as ptable, video } from './table'
+import { bullet, comment, history, permissions as ptable, video } from './table'
 
 const
   flq = new Flq({
@@ -21,8 +21,8 @@ flq.setModel({
     videoCount: {
       async get(row) {
         return await video.where({
-          state: 2,
           userId: row.userId,
+          deleteAt: 0
         }).count()
       },
     },
@@ -111,7 +111,29 @@ flq.setModel({
       postreat: value => os.imageAsstesBaseUrl + value + '!video.cover',
     },
   },
-  '`like`': {}
+  '`like`': {
+    video: {
+      async get(row) {
+        const data = await flq.from('video').field(['videoId', 'title', 'describe', 'cover', 'classify', 'collectionId', 'likeCount', 'readCount', 'sortValue']).where({videoId: row.videoId, state: 2}).first()
+        if(!data) return
+        Object.assign(row, data)
+      }
+    }
+  },
+  bullet: {},
+  history: {
+    video: {
+      async get(row) {
+        const data = await flq.from('video').field(['videoId', 'title', 'describe', 'cover', 'classify', 'collectionId', 'likeCount', 'readCount', 'sortValue']).where({videoId: row.videoId, state: 2}).first()
+        if(!data) return
+        Object.assign(row, data)
+      }
+    }
+  },
+  collection: {},
+  'auth-button': {},
+  'system-settings': {},
+  'video-collection': {}
 })
 
 hooks.on('format', (a: any) => {

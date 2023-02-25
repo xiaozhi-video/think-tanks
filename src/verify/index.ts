@@ -1,6 +1,5 @@
 import Joi from "joi"
 import Koa from "koa"
-import { type } from 'os'
 import { ParameterError } from '../error'
 
 export const imgUrl = Joi.string().required().min(16).max(50).error(new Error('无效图片路径'))
@@ -10,6 +9,7 @@ export interface VerifyContext<V> extends Koa.DefaultContext {
 }
 
 export const keyWord = Joi.string().min(0).max(128).error(new Error('无效关键词'))
+export const videoId = Joi.string().required().min(1).max(32).error(new Error('无效id'))
 
 export const page = {
   pageNumber: Joi.number().default(1).error(new Error('无效页码')),
@@ -21,7 +21,7 @@ type Deduce<T> = T extends Joi.StringSchema ? string : T extends Joi.NumberSchem
 function noNull(a: any) {
   if(typeof a === 'object') {
     if(Array.isArray(a)) {
-      a.forEach(e => noNull(e));
+      a.forEach(e => noNull(e))
     } else {
       for(const key in a) {
         if(a[key] === null) {
@@ -46,7 +46,6 @@ export default function verify<V extends Object>(a: V): Koa.Middleware<Koa.Defau
       d = ctx.request.body
     }
     d = noNull(d)
-    console.log(d)
     if(typeof d !== 'object') {
       throw new ParameterError('参数为空')
     }

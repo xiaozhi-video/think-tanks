@@ -12,10 +12,14 @@ export const videoCollection = flq.from('video_collection')
 
 export const comment = flq.from('comment')
 
-export const like = flq.from('`like`')
-
 export const collection = flq.from('collection')
 
 export const permissions = flq.from('permissions')
 
 export const carousel = flq.from('carousel')
+
+export const bullet = flq.from('bullet')
+
+export const like = flq.from('`like`').where({ deleteAt: 0 })
+
+export const history = flq.from('history').where({ deleteAt: 0 })

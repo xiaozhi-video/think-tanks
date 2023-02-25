@@ -23,6 +23,15 @@ export const schemaChangePhoto = verify({
   photo: imgUrl,
 })
 
+export const schemaChangeNickname = verify({
+  nickname,
+})
+
+export const schemaChangePassword = verify({
+  oldPassword: password,
+  newPassword: password
+})
+
 export const schemaList = verify({
   keyWord,
   permission: Joi.string().min(0).max(32).error(new Error('无效权限')),

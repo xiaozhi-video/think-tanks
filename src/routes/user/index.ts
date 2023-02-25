@@ -75,9 +75,9 @@ router.post('/sendCode', schemaSendCode, async (ctx) => {
     ctx.succeed({ code })
     return
   }
-  const res = await sendCode(code)
+  const res = await sendCode(code, phone)
   if(res.body.code === 'OK') {
-    ctx.succeed('succeed')
+    ctx.succeed({ code })
   } else {
     ctx.custom(401, res.body.message || '未知错误')
     authCode.destroy(phone)
@@ -130,13 +130,20 @@ router.put('/signature', schemaChangeSignature, authUser(), async (ctx) => {
 router.get('/video', schemaMyVideo, authUser(), async (ctx) => {
   const { pageNumber, pageSize, state } = ctx.verify
   let flq = video.where({
-    state,
     deleteAt: 0,
     userId: ctx.authUser.userId,
   }).limit({
     size: pageSize,
     page: pageNumber,
+  }).order({
+    updateAt: -1,
+    createdAt: -1
   })
+  if(typeof state === 'number') {
+    flq = flq.where({
+      state
+    })
+  }
   const data = await flq.findRows()
   ctx.succeed(data)
 })
@@ -145,9 +152,10 @@ router.get('/video/fromId', schemaVideoFromId, authUser(), async (ctx) => {
   const { videoId } = ctx.verify
   const { userId } = ctx.authUser
   const data = await video.where({ videoId, userId }).first()
+  if(!data) throw new NoResourcesError('找不到视频')
   const { cover, videoUrl } = data as { cover: string, videoUrl: string }
   data.coverPreview = data.cover
-  data.cover = cover.replace(os.imageAsstesBaseUrl, '')
+  data.cover = cover.replace(os.imageAsstesBaseUrl, '').replace('!video.cover', '')
   data.videoPreview = data.videoUrl
   data.videoUrl = videoUrl.replace(os.videoAsstesBaseUrl, '')
   if(!data) throw new NoResourcesError('找不到视频')

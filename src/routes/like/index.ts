@@ -1,9 +1,9 @@
 import { sql } from 'flq'
-import { like, video } from '../../db/table'
+import { history, like, video } from '../../db/table'
 import { NoResourcesError, ParameterError } from '../../error'
 import { authUser } from '../../utils/jwt'
 import Router from '../../utils/Router'
-import { schemaVideoId } from '../../verify'
+import verify, { page, schemaVideoId } from '../../verify'
 
 const router = new Router
 
@@ -45,6 +45,20 @@ router.del('/', schemaVideoId, authUser(), async (ctx) => {
     likeCount: sql('likeCount - 1'),
   }).update()
   ctx.succeed()
+})
+
+router.get('/', verify(page), authUser(), async (ctx) => {
+  const { pageNumber, pageSize } = ctx.verify
+  const { userId } = ctx.authUser
+  const data = await like.where({
+    userId,
+  }).order({
+    createdAt: -1,
+  }).limit({
+    size: pageSize,
+    page: pageNumber,
+  }).vget(['video']).findRows()
+  ctx.succeed(data)
 })
 
 export default router.routes()

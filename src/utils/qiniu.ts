@@ -1,11 +1,13 @@
+import { createReadStream, ReadStream } from 'fs'
 import fs from 'fs/promises'
 import { nanoid } from 'nanoid'
 import { auth, conf, form_up, rs, zone } from 'qiniu'
-import { os, baseUrl } from '../config'
+import { baseUrl, os } from '../config'
 
 const mac = new auth.digest.Mac(os.accessKey, os.secretKey)
 
 const config = new conf.Config({ zone: zone.Zone_z0 })
+
 // const bucketManager = new rs.BucketManager(mac, config)
 
 export function geVideotToken() {
@@ -30,19 +32,11 @@ export function getImageToken() {
   return putPolicy.uploadToken(mac)
 }
 
-export function uploadImage(path: string): Promise<any> {
-  return new Promise(async (resolve, reject) => {
+function imagePutStream(readableStream: ReadStream) {
+  return new Promise((resolve, reject) => {
     const formUploader = new form_up.FormUploader(config)
     const putExtra = new form_up.PutExtra()
-    const fileHandle = await fs.open(path, 'r')
-    const readableStream = await fileHandle.createReadStream()
     formUploader.putStream(getImageToken(), 'image/' + nanoid(), readableStream, putExtra, async (respErr, respBody, respInfo) => {
-      try {
-        await fileHandle.close()
-        await fs.rm(path)
-      } catch(err) {
-        reject(err)
-      }
       if(respErr) {
         reject(respErr)
       }
@@ -53,4 +47,21 @@ export function uploadImage(path: string): Promise<any> {
       }
     })
   })
+}
+
+export async function uploadImage(path1: string) {
+
+  let error
+  let info: any
+  let readableStream: ReadStream | void
+  try {
+    readableStream = createReadStream(path1)
+    info = await imagePutStream(readableStream)
+  } catch(err) {
+    error = err
+  }
+  if(readableStream) readableStream.close()
+  await fs.rm(path1)
+  if(error) throw error
+  return info
 }

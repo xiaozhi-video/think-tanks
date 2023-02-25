@@ -9,6 +9,7 @@ export default async function(ctx: Context, error: any) {
       detail: error.message
     }
   } else if(error instanceof PermissionError) {
+    console.log(error)
     ctx.status = 401;
     ctx.body = {
       message: '无权访问资源',
@@ -28,7 +29,7 @@ export default async function(ctx: Context, error: any) {
     }
   } else {
     // console.error(error.message)
-    console.error(error)
+    console.log(error)
     ctx.status = 500;
     ctx.body = '未知错误'
   }

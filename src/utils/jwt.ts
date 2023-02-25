@@ -57,7 +57,7 @@ export interface AuthAdminContext extends DefaultContext {
 export function authUser<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthUserContext> {
   return authToken(options, async ({ userId, type }, ctx) => {
     if(type !== 'user' && !options.optional) throw new PermissionError('无效用户组')
-    const userInfo = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'avatar', 'permissions' ]).first()
+    const userInfo = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'permissions' ]).first()
     if(userInfo.banned) {
       throw new AccountBanningError()
     }
@@ -69,7 +69,7 @@ export function authUser<ContextT = Koa.DefaultContext>(options: AuthUserOptions
 export function authAdmin<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthAdminContext> {
   return authToken(options, async ({ adminId, type }, ctx) => {
     if(type !== 'admin' && !options.optional) throw new PermissionError('无效用户组')
-    const adminInfo = await admin.where({ adminId }).field([ 'adminId', 'permissions', 'nickname', 'photo', 'authButton' ]).first()
+    const adminInfo = await admin.where({ adminId }).field([ 'adminId', 'permissions', 'nickname', 'authButton' ]).first()
     ctx.authAdmin = adminInfo
     return adminInfo
   })

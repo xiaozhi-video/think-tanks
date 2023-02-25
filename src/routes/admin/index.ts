@@ -1,11 +1,13 @@
 // @ts-ignore
 import md5 from 'md5'
 import { os } from '../../config'
-import { admin, user, video } from '../../db/table'
+import { admin, bullet, user, video } from '../../db/table'
 import { NoResourcesError, PermissionError } from '../../error'
-import { authAdmin, authUser, sing } from '../../utils/jwt'
+import { authAdmin, sing } from '../../utils/jwt'
 import Router from '../../utils/Router'
 import {
+  schemaChangeNickname,
+  schemaChangePassword,
   schemaChangePhoto,
   schemaEdit,
   schemaFromId,
@@ -47,12 +49,16 @@ router.post('/login', schemaLogin, async (ctx) => {
   })
 })
 
-router.get('/info', authAdmin(), (ctx) => {
-  ctx.succeed(ctx.authAdmin)
+router.get('/info', authAdmin(), async (ctx) => {
+  const { adminId } = ctx.authAdmin
+  const data = await admin.where({ adminId }).vget([
+    'permissionsDescription',
+  ]).first()
+  ctx.succeed(data)
 })
 
 router.put('/photo', schemaChangePhoto, authAdmin(), async (ctx) => {
-  const { affectedRows } = await user.where({
+  const { affectedRows } = await admin.where({
     adminId: ctx.authAdmin.adminId,
   }).set({
     photo: ctx.verify.photo,
@@ -60,7 +66,33 @@ router.put('/photo', schemaChangePhoto, authAdmin(), async (ctx) => {
   ctx.succeed()
 })
 
-router.put('/', schemaEdit, authAdmin(), async (ctx) => {
+router.put('/nickname', schemaChangeNickname, authAdmin(), async (ctx) => {
+  const { affectedRows } = await admin.where({
+    adminId: ctx.authAdmin.adminId,
+  }).set({
+    nickname: ctx.verify.nickname,
+  }).update()
+  ctx.succeed()
+})
+
+router.put('/password', schemaChangePassword, authAdmin(), async (ctx) => {
+  const { oldPassword, newPassword } = ctx.verify
+  const { adminId } = ctx.authAdmin
+  const { affectedRows } = await admin.where({
+    adminId: ctx.authAdmin.adminId,
+    password: md5(oldPassword),
+  }).set({
+    password: md5(newPassword),
+  }).update()
+  if(!affectedRows) {
+    throw new NoResourcesError('密码错误')
+  }
+  ctx.succeed()
+})
+
+router.put('/', schemaEdit, authAdmin({
+  permission: 'adminEdit',
+}), async (ctx) => {
   const { adminId } = ctx.authAdmin
   const { nickname, photo } = ctx.verify
   await admin.where({ adminId }).set({ nickname, photo }).update()
@@ -117,7 +149,7 @@ router.get('/list', schemaList, authAdmin({
 })
 
 router.get('/fromId', schemaFromId, authAdmin({
-  permission: 'adminEdit',
+  permission: 'adminerEdit',
 }), async (ctx) => {
   const { adminId } = ctx.verify
   const data = await admin.where({ adminId }).field([ 'adminId', 'photo', 'nickname', 'permissions', 'authButton' ]).first()
@@ -155,6 +187,9 @@ router.get('/video/fromId', schemaVideoFromId, authAdmin(), async (ctx) => {
   const { videoId } = ctx.verify
   const data = await video.where({ videoId }).vget([ 'user' ]).first()
   if(!data) throw new NoResourcesError('找不到视频')
+  const bulletList = await bullet.where({ videoId }).order({ time: 1 }).find()
+  data.bulletList = bulletList
+  data.bulletCount = bulletList.length
   ctx.succeed({ data })
 })
 
