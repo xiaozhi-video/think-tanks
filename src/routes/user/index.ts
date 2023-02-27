@@ -1,8 +1,11 @@
 // @ts-ignore
 import md5 from 'md5'
+import { Filter } from 'mongodb'
+import { nanoid } from 'nanoid'
 import { node_env, os } from '../../config'
-import { admin, user, video } from '../../db/table'
+import { user, video } from '../../db/table'
 import { AccountBanningError, NoResourcesError, PermissionError } from '../../error'
+import { muser, mvideo, UserField } from '../../mdb/table'
 import authCode from '../../utils/code'
 import { authAdmin, authUser, sing } from '../../utils/jwt'
 import Router from '../../utils/Router'
@@ -25,21 +28,22 @@ const router = new Router()
 
 router.post('/register', schemaRegister, async (ctx) => {
   const { phone, code, password, nickname } = ctx.verify
-  const need = await admin.where({ nickname }).first()
+  const need = await muser.findOne({ nickname })
   if(need) {
     throw new PermissionError('用户名已被占用')
   }
-  const poed = await user.where({ phone }).first()
+  const poed = await muser.findOne({ phone })
   if(poed) {
     throw new PermissionError('手机号已被占用')
   }
   if(authCode.has(phone, code)) {
-    const res = await user.value({
+    const res = await muser.insertOne({
+      userId: nanoid(),
       phone,
       nickname,
       password: md5(password),
       createdAt: new Date,
-    }).add()
+    })
     authCode.destroy(phone)
     ctx.succeed({ message: 'success' })
   } else {
@@ -53,10 +57,10 @@ router.post('/register', schemaRegister, async (ctx) => {
 
 router.post('/login', schemaLogin, async (ctx) => {
   const { phone, password } = ctx.verify
-  const res = await user.where({
+  const res = await muser.findOne({
     phone,
     password: md5(password),
-  }).first()
+  })
   if(!res) throw new NoResourcesError('账号或密码错误')
   if(res.banned) {
     throw new AccountBanningError()
@@ -86,65 +90,70 @@ router.post('/sendCode', schemaSendCode, async (ctx) => {
 
 router.get('/myInfo', authUser(), async (ctx) => {
   const { userId } = ctx.authUser
-  const data = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'avatar', 'permissions', 'signature' ]).vget([ 'videoCount' ]).first()
+  const data = await muser.findOne({ userId }, {
+    projection: { _id: 0, password: 0, createdAt: 0 },
+  })
   ctx.succeed(data)
 })
 
 router.put('/myInfo', schemaPutInfo, authUser(), async (ctx) => {
   const { userId } = ctx.authUser
   const { nickname, signature } = ctx.verify
-  const data = await user.where({ userId }).set({
-    nickname,
-    signature,
-  }).update()
+  const data = await muser.updateOne({ userId }, {
+    $set: {
+      nickname,
+      signature,
+    },
+  })
   ctx.succeed()
 })
 
 router.put('/avatar', schemaChangeAvatar, authUser(), async (ctx) => {
-  const { affectedRows } = await user.where({
+  const { acknowledged } = await muser.updateOne({
     userId: ctx.authUser.userId,
-  }).set({
-    avatar: ctx.verify.avatar,
-  }).update()
+  }, {
+    $set: {
+      avatar: ctx.verify.avatar,
+    },
+  })
   ctx.succeed()
 })
 
 router.put('/nickname', schemaChangeNickname, authUser(), async (ctx) => {
-  const { affectedRows } = await user.where({
+  const { acknowledged } = await muser.updateOne({
     userId: ctx.authUser.userId,
-  }).set({
-    nickname: ctx.verify.nickname,
-  }).update()
+  }, {
+    $set: {
+      nickname: ctx.verify.nickname,
+    },
+  })
   ctx.succeed()
 })
 
 router.put('/signature', schemaChangeSignature, authUser(), async (ctx) => {
-  const { affectedRows } = await user.where({
+  const { acknowledged } = await muser.updateOne({
     userId: ctx.authUser.userId,
-  }).set({
-    signature: ctx.verify.signature,
-  }).update()
+  }, {
+    $set: {
+      signature: ctx.verify.signature,
+    },
+  })
   ctx.succeed()
 })
 
 router.get('/video', schemaMyVideo, authUser(), async (ctx) => {
   const { pageNumber, pageSize, state } = ctx.verify
-  let flq = video.where({
-    deleteAt: 0,
+  const where: Filter<Partial<UserField>> = {
+    deleteAt: false,
     userId: ctx.authUser.userId,
-  }).limit({
-    size: pageSize,
-    page: pageNumber,
-  }).order({
-    updateAt: -1,
-    createdAt: -1
-  })
-  if(typeof state === 'number') {
-    flq = flq.where({
-      state
-    })
   }
-  const data = await flq.findRows()
+  if(typeof state === 'number') {
+    where.state = state
+  }
+  const data = await mvideo.find(where).sort({
+    updateAt: -1,
+    createdAt: -1,
+  }).limit(pageSize).skip((pageNumber - 1) * pageNumber).toArray()
   ctx.succeed(data)
 })
 

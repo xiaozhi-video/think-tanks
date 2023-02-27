@@ -3,6 +3,7 @@ import Koa, { DefaultContext, DefaultState, Middleware } from "koa"
 import { jwtKey } from '../config'
 import { admin, user } from '../db/table'
 import { AccountBanningError, NoResourcesError, PermissionError } from '../error'
+import { muser } from '../mdb/table'
 
 function getToken(ctx: DefaultState): string | void {
   const field = 'Bearer '
@@ -32,7 +33,7 @@ export interface AuthUserOptions {
 
 export interface AuthUser {
   permissions?: string[]
-  userId: number
+  userId: string
   nickname: string
   phone: string
   avatar: string
@@ -57,7 +58,10 @@ export interface AuthAdminContext extends DefaultContext {
 export function authUser<ContextT = Koa.DefaultContext>(options: AuthUserOptions = {}): Middleware<DefaultState, AuthUserContext> {
   return authToken(options, async ({ userId, type }, ctx) => {
     if(type !== 'user' && !options.optional) throw new PermissionError('无效用户组')
-    const userInfo = await user.where({ userId }).field([ 'userId', 'phone', 'nickname', 'permissions' ]).first()
+    const userInfo = await muser.findOne({ userId }, {
+      projection: { _id: 0, password: 0, createdAt: 0 },
+    })
+    if(!userInfo) throw new NoResourcesError()
     if(userInfo.banned) {
       throw new AccountBanningError()
     }
