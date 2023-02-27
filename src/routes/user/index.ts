@@ -2,7 +2,7 @@
 import md5 from 'md5'
 import { node_env, os } from '../../config'
 import { admin, user, video } from '../../db/table'
-import { AccountBanningError, NoResourcesError, PermissionError } from '../../error'
+import { AccountBanningError, NoResourcesError, ParameterError, PermissionError } from '../../error'
 import authCode from '../../utils/code'
 import { authAdmin, authUser, sing } from '../../utils/jwt'
 import Router from '../../utils/Router'
@@ -27,11 +27,11 @@ router.post('/register', schemaRegister, async (ctx) => {
   const { phone, code, password, nickname } = ctx.verify
   const need = await admin.where({ nickname }).first()
   if(need) {
-    throw new PermissionError('用户名已被占用')
+    throw new ParameterError('用户名已被占用')
   }
   const poed = await user.where({ phone }).first()
   if(poed) {
-    throw new PermissionError('手机号已被占用')
+    throw new ParameterError('手机号已被占用')
   }
   if(authCode.has(phone, code)) {
     const res = await user.value({
