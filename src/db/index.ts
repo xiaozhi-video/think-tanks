@@ -96,12 +96,12 @@ flq.setModel({
     replyUser: {
       async get({ replyId }) {
         const { userId } = await flq.from('comment').where({ commentId: replyId }).first()
-        return await flq.from('user').field('signature', 'nickname', 'avatar').where({ userId }).first()
+        return await flq.from('user').field('userId', 'nickname', 'avatar').where({ userId }).first()
       },
     },
     user: {
       async get({ userId }) {
-        return await flq.from('user').where({ userId }).field('nickname', 'avatar').first()
+        return await flq.from('user').where({ userId }).field('userId', 'nickname', 'avatar').first()
       },
     },
   },

@@ -69,10 +69,18 @@ router.get('/video', schemaVideo, async (ctx) => {
 
 router.get('/reply', schemaGetReply, async (ctx) => {
   const { commentId, pageSize, pageNumber } = ctx.verify
+  const top = await comment.where({commentId}).field(['userId']).first()
+  if(!top) throw new NoResourcesError()
+
   const data = await comment.where({ topCommentId: commentId }).order({ createdAt: -1 }).vget([ 'user', 'replyUser' ]).limit({
     size: pageSize,
     page: pageNumber,
   }).findRows()
+  data.data.forEach(e => {
+    if(top.userId === e.replyUser.userId || e.userId === e.replyUser.userId) {
+      delete e.replyUser
+    }
+  })
   ctx.succeed(data)
 })
 

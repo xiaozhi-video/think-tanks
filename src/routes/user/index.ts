@@ -2,7 +2,7 @@
 import md5 from 'md5'
 import { node_env, os } from '../../config'
 import { admin, user, video } from '../../db/table'
-import { AccountBanningError, NoResourcesError, ParameterError, PermissionError } from '../../error'
+import { AccountBanningError, NoResourcesError, ParameterError } from '../../error'
 import authCode from '../../utils/code'
 import { authAdmin, authUser, sing } from '../../utils/jwt'
 import Router from '../../utils/Router'
@@ -76,10 +76,11 @@ router.post('/sendCode', schemaSendCode, async (ctx) => {
     return
   }
   const res = await sendCode(code, phone)
+  console.log(res)
   if(res.body.code === 'OK') {
     ctx.succeed({ code })
   } else {
-    ctx.custom(401, res.body.message || '未知错误')
+    ctx.custom(401, { message: res.body.message || '未知错误' })
     authCode.destroy(phone)
   }
 })
@@ -137,11 +138,11 @@ router.get('/video', schemaMyVideo, authUser(), async (ctx) => {
     page: pageNumber,
   }).order({
     updateAt: -1,
-    createdAt: -1
+    createdAt: -1,
   })
   if(typeof state === 'number') {
     flq = flq.where({
-      state
+      state,
     })
   }
   const data = await flq.findRows()

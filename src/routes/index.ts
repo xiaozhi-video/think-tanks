@@ -4,6 +4,7 @@ import bullet from './bullet'
 import carousel from './carousel'
 import classify from './classify'
 import comment from './comment'
+import data from './data'
 import history from './history'
 import like from './like'
 import permission from './permission'
@@ -24,5 +25,6 @@ router.use('/permission', permission)
 router.use('/carousel', carousel)
 router.use('/bullet', bullet)
 router.use('/history', history)
+router.use('/data', data)
 
 export default router
