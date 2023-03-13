@@ -2,7 +2,7 @@ import { admin, permissions, permissions as ptable } from '../../db/table'
 import { NoResourcesError, ParameterError } from '../../error'
 import { authAdmin } from '../../utils/jwt'
 import Router from '../../utils/Router'
-import { schemaGetDescription, schemaPutPermissions } from './verify'
+import { schemaPutPermissions } from './verify'
 
 const router = new Router
 

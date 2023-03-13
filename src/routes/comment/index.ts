@@ -1,15 +1,8 @@
-import { os } from '../../config'
 import { comment, video } from '../../db/table'
 import { NoResourcesError } from '../../error'
 import { authUser, AuthUserContext } from '../../utils/jwt'
 import Router from '../../utils/Router'
-import {
-  schemaComment,
-  schemaDel,
-  schemaGetReply,
-  schemaReply,
-  schemaVideo,
-} from './verify'
+import { schemaComment, schemaDel, schemaGetReply, schemaReply, schemaVideo } from './verify'
 
 const router = new Router
 
@@ -60,7 +53,10 @@ router.del('/', schemaDel, authUser(), async (ctx) => {
 
 router.get('/video', schemaVideo, async (ctx) => {
   const { videoId, pageSize, pageNumber } = ctx.verify
-  const data = await comment.where({ videoId, topCommentId: { com: 'IS NULL' } }).order({ createdAt: -1 }).limit({
+  const data = await comment.where({
+    videoId,
+    topCommentId: { com: 'IS NULL' },
+  }).order({ createdAt: -1 }).limit({
     size: pageSize,
     page: pageNumber,
   }).vget([ 'topReply', 'user' ]).findRows()
@@ -69,7 +65,7 @@ router.get('/video', schemaVideo, async (ctx) => {
 
 router.get('/reply', schemaGetReply, async (ctx) => {
   const { commentId, pageSize, pageNumber } = ctx.verify
-  const top = await comment.where({commentId}).field(['userId']).first()
+  const top = await comment.where({ commentId }).field([ 'userId' ]).first()
   if(!top) throw new NoResourcesError()
 
   const data = await comment.where({ topCommentId: commentId }).order({ createdAt: -1 }).vget([ 'user', 'replyUser' ]).limit({

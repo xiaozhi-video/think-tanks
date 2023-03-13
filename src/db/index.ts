@@ -1,6 +1,6 @@
 import { Flq, hooks } from 'flq'
 import { db, os } from '../config'
-import { bullet, comment, history, permissions as ptable, video } from './table'
+import { comment, permissions as ptable, video } from './table'
 
 const
   flq = new Flq({
@@ -22,7 +22,7 @@ flq.setModel({
       async get(row) {
         return await video.where({
           userId: row.userId,
-          deleteAt: 0
+          deleteAt: 0,
         }).count()
       },
     },
@@ -114,26 +114,32 @@ flq.setModel({
   '`like`': {
     video: {
       async get(row) {
-        const data = await flq.from('video').field(['videoId', 'title', 'describe', 'cover', 'classify', 'collectionId', 'likeCount', 'readCount', 'sortValue']).where({videoId: row.videoId, state: 2}).first()
+        const data = await flq.from('video').field([ 'videoId', 'title', 'describe', 'cover', 'classify', 'collectionId', 'likeCount', 'readCount', 'sortValue' ]).where({
+          videoId: row.videoId,
+          state: 2,
+        }).first()
         if(!data) return
         Object.assign(row, data)
-      }
-    }
+      },
+    },
   },
   bullet: {},
   history: {
     video: {
       async get(row) {
-        const data = await flq.from('video').field(['videoId', 'title', 'describe', 'cover', 'classify', 'collectionId', 'likeCount', 'readCount', 'sortValue']).where({videoId: row.videoId, state: 2}).first()
+        const data = await flq.from('video').field([ 'videoId', 'title', 'describe', 'cover', 'classify', 'collectionId', 'likeCount', 'readCount', 'sortValue' ]).where({
+          videoId: row.videoId,
+          state: 2,
+        }).first()
         if(!data) return
         Object.assign(row, data)
-      }
-    }
+      },
+    },
   },
   collection: {},
   'auth-button': {},
   'system-settings': {},
-  'video-collection': {}
+  'video-collection': {},
 })
 
 hooks.on('format', (a: any) => {

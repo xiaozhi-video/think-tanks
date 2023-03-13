@@ -109,9 +109,9 @@ router.del('/', schemaFromId, authAdmin({
 })
 
 function randomString(e = 8) {
-  const t = "abcdefhijkmnprstwxyz0123456789",
+  const t = 'abcdefhijkmnprstwxyz0123456789',
     l = t.length
-  let n = ""
+  let n = ''
   for(let i = 0; i < e; i++) n += t.charAt(Math.floor(Math.random() * l))
   return n
 }

@@ -1,5 +1,5 @@
-import KoaRouter from 'koa-router'
 import Koa from 'koa'
+import KoaRouter from 'koa-router'
 
 export default class Router extends KoaRouter {
   // @ts-ignore
@@ -14,12 +14,13 @@ export default class Router extends KoaRouter {
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1>,
   ): KoaRouter<Koa.DefaultState, T1>
   // @ts-ignore
-  post<T1,T2>(
+  post<T1, T2>(
     name: string,
     middleware1: Koa.Middleware<Koa.DefaultState, T1>,
     middleware2: Koa.Middleware<Koa.DefaultState, T2>,
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1 & T2>,
   ): KoaRouter<Koa.DefaultState, & T1 & T2>
+
   // @ts-ignore
   get<T1 = Koa.DefaultContext>(
     name: string,
@@ -32,12 +33,13 @@ export default class Router extends KoaRouter {
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1>,
   ): KoaRouter<Koa.DefaultState, T1>
   // @ts-ignore
-  get<T1,T2>(
+  get<T1, T2>(
     name: string,
     middleware1: Koa.Middleware<Koa.DefaultState, T1>,
     middleware2: Koa.Middleware<Koa.DefaultState, T2>,
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1 & T2>,
   ): KoaRouter<Koa.DefaultState, & T1 & T2>
+
   // @ts-ignore
   put<T1>(
     name: string,
@@ -45,12 +47,13 @@ export default class Router extends KoaRouter {
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1>,
   ): KoaRouter<Koa.DefaultState, T1>
   // @ts-ignore
-  put<T1,T2>(
+  put<T1, T2>(
     name: string,
     middleware1: Koa.Middleware<Koa.DefaultState, T1>,
     middleware2: Koa.Middleware<Koa.DefaultState, T2>,
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1 & T2>,
   ): KoaRouter<Koa.DefaultState, & T1 & T2>
+
   // @ts-ignore
   del<T1>(
     name: string,
@@ -58,7 +61,7 @@ export default class Router extends KoaRouter {
     routeHandler: KoaRouter.IMiddleware<Koa.DefaultState, T1>,
   ): KoaRouter<Koa.DefaultState, T1>
   // @ts-ignore
-  del<T1,T2>(
+  del<T1, T2>(
     name: string,
     middleware1: Koa.Middleware<Koa.DefaultState, T1>,
     middleware2: Koa.Middleware<Koa.DefaultState, T2>,

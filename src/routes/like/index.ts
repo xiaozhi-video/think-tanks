@@ -1,5 +1,5 @@
 import { sql } from 'flq'
-import { history, like, video } from '../../db/table'
+import { like, video } from '../../db/table'
 import { NoResourcesError, ParameterError } from '../../error'
 import { authUser } from '../../utils/jwt'
 import Router from '../../utils/Router'
@@ -57,7 +57,7 @@ router.get('/', verify(page), authUser(), async (ctx) => {
   }).limit({
     size: pageSize,
     page: pageNumber,
-  }).vget(['video']).findRows()
+  }).vget([ 'video' ]).findRows()
   ctx.succeed(data)
 })
 

@@ -7,7 +7,7 @@ import Router from '../../utils/Router'
 
 const router = new Router
 
-router.post('/video', authUser() , (ctx) => {
+router.post('/video', authUser(), (ctx) => {
   const token = geVideotToken()
   ctx.succeed({ token })
 })
@@ -32,11 +32,11 @@ router.post('/image', KoaBody({
   const file = files.file
   const info = await uploadImage(file.filepath)
   const { key, hash } = info.data
-  ctx.succeed({ path: key, hash: hash, url: os.asstesBaseUrl + key })
+  ctx.succeed({ path: key, hash: hash, url: os.imageAsstesBaseUrl + key })
 })
 
 router.post('/clean', authAdmin({
-  permission: 'cleanResource'
+  permission: 'cleanResource',
 }), async (ctx) => {
 
 })

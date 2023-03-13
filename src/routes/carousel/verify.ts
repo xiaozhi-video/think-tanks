@@ -1,5 +1,6 @@
-import Joi from "joi"
+import Joi from 'joi'
 import verify from '../../verify'
+
 export const schemaCarousel = verify({
   carousel: Joi.array().items(Joi.object({
     id: Joi.string().max(32).error(new Error('无效id')),

@@ -1,4 +1,4 @@
-import Joi from "joi"
+import Joi from 'joi'
 import verify, { page } from '../../verify'
 
 const text = Joi.string().required().min(1).max(255).error(new Error('无效评论'))
@@ -27,5 +27,5 @@ export const schemaGetReply = verify({
 
 
 export const schemaDel = verify({
-  commentId: Joi.number().error(new Error('无效评论'))
+  commentId: Joi.number().error(new Error('无效评论')),
 })

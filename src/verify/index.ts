@@ -1,5 +1,5 @@
-import Joi from "joi"
-import Koa from "koa"
+import Joi from 'joi'
+import Koa from 'koa'
 import { ParameterError } from '../error'
 
 export const imgUrl = Joi.string().required().min(16).max(50).error(new Error('无效图片路径'))

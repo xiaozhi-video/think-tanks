@@ -24,8 +24,8 @@ export default async function sendCode(code: string, phone: string): Promise<Sen
   // 工程代码泄露可能会导致AccessKey泄露，并威胁账号下所有资源的安全性。以下代码示例仅供参考，建议使用更安全的 STS 方式，更多鉴权访问方式请参见：https://help.aliyun.com/document_detail/378664.html
   let client = createClient(accessKeyId, accessKeySecret)
   let sendSmsRequest = new $Dysmsapi20170525.SendSmsRequest({
-    signName: "阿里云短信测试",
-    templateCode: "SMS_154950909",
+    signName: '阿里云短信测试',
+    templateCode: 'SMS_154950909',
     phoneNumbers: phone,
     templateParam: `{\"code\":\"${ code }"}`,
   })

@@ -15,7 +15,7 @@ router.get('/', verify(page), authUser(), async (ctx) => {
   }).limit({
     size: pageSize,
     page: pageNumber,
-  }).vget(['video']).findRows()
+  }).vget([ 'video' ]).findRows()
   ctx.succeed(data)
 })
 

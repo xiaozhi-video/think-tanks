@@ -20,10 +20,10 @@ group by date_format(createdAt, '%Y-%m-%d')  ORDER BY \`createdAt\` -1;`, ctn)
   //@ts-ignore
   ctn.release()
 
-  const dateSet = new Set([...like,...history].map(e => e.date))
-  const sort = Array.from(dateSet).sort((a ,b) => a > b ? 1 : -1)
+  const dateSet = new Set([ ...like, ...history ].map(e => e.date))
+  const sort = Array.from(dateSet).sort((a, b) => a > b ? 1 : -1)
   const sortData = sort.map(date => {
-    const data: any = {date}
+    const data: any = { date }
     const ld = like.find(e => e.date === date)
     const hd = history.find(e => e.date === date)
     if(ld) data.like = ld.count
@@ -33,7 +33,7 @@ group by date_format(createdAt, '%Y-%m-%d')  ORDER BY \`createdAt\` -1;`, ctn)
     return data
   })
   ctx.succeed({
-    data: sortData
+    data: sortData,
   })
 })
 

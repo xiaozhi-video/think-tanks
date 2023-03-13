@@ -1,4 +1,3 @@
-import { any } from 'joi'
 import Koa from 'koa'
 import koaBody from 'koa-body'
 import cors from 'koa2-cors'
@@ -36,7 +35,7 @@ app.use(async (ctx, next) => {
   )
   try {
     await next()
-  } catch (err) {
+  } catch(err) {
     error(ctx, err)
   }
   if(!ctx.body) ctx.custom(404, '找不到路由')

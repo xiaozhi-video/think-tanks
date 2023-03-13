@@ -1,4 +1,4 @@
-import Joi from "joi"
+import Joi from 'joi'
 import verify, { page, videoId } from '../../verify'
 
 const submit = {
@@ -14,15 +14,15 @@ export const schemaSubmit = verify(submit)
 
 export const schemaModify = verify({
   ...submit,
-  videoId
+  videoId,
 })
 
 export const schemaSchema = verify({
   keyWord: Joi.string().min(0).max(128).error(new Error('无效关键词')),
   classify: Joi.string().max(8).error(new Error('无效分类')),
-  ...page
+  ...page,
 })
 
 export const schemaFromId = verify({
-  videoId
+  videoId,
 })

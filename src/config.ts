@@ -31,7 +31,7 @@ export const os = {
   accessKey: process.env.ACCESS_KEY as string,
   secretKey: process.env.SECRET_KEY as string,
   imageAsstesBaseUrl: 'http://image.think-tanks.flycran.com/',
-  videoAsstesBaseUrl: 'http://video.think-tanks.flycran.com/'
+  videoAsstesBaseUrl: 'http://video.think-tanks.flycran.com/',
 }
 
 export const node_env = process.env.NODE_ENV

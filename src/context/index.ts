@@ -22,7 +22,7 @@ export function custom(this: Koa.Context, status: number, body: any) {
   this.status = status
 }
 
-declare module "koa" {
+declare module 'koa' {
   interface DefaultContext {
     parameterError: (data: any) => Promise<void>
     succeed: (data?: any) => Promise<void>

@@ -1,4 +1,4 @@
-import Joi from "joi"
+import Joi from 'joi'
 import verify, { imgUrl, keyWord, page } from '../../verify'
 
 const password = Joi.string().required().min(8).max(16).error(new Error('无效密码'))
@@ -29,7 +29,7 @@ export const schemaChangeNickname = verify({
 
 export const schemaChangePassword = verify({
   oldPassword: password,
-  newPassword: password
+  newPassword: password,
 })
 
 export const schemaList = verify({
@@ -51,5 +51,5 @@ export const schemaVideo = verify({
 })
 
 export const schemaVideoFromId = verify({
-  videoId: Joi.string().required().max(64).error(new Error('无效视频'))
+  videoId: Joi.string().required().max(64).error(new Error('无效视频')),
 })

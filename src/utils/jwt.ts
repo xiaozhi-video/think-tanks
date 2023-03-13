@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken'
-import Koa, { DefaultContext, DefaultState, Middleware } from "koa"
+import Koa, { DefaultContext, DefaultState, Middleware } from 'koa'
 import { jwtKey } from '../config'
 import { admin, user } from '../db/table'
-import { AccountBanningError, NoResourcesError, PermissionError } from '../error'
+import { AccountBanningError, PermissionError } from '../error'
 
 function getToken(ctx: DefaultState): string | void {
   const field = 'Bearer '

@@ -24,7 +24,7 @@ router.put('/', schemaCarousel, authAdmin({
 })
 
 router.get('/', async (ctx) => {
-  const data = await carousel.vget(['imagePreview']).order({ index: 'ASC' }).find()
+  const data = await carousel.vget([ 'imagePreview' ]).order({ index: 'ASC' }).find()
   data.forEach(e => {
     e.imagePreview = e.image
     e.image = e.image.replace(os.imageAsstesBaseUrl, '').replace('!video.cover', '')

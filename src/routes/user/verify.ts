@@ -1,4 +1,4 @@
-import Joi from "joi"
+import Joi from 'joi'
 import verify, { imgUrl, keyWord, page } from '../../verify'
 
 const phone = Joi.string().required().pattern(/^1[3456789]\d{9}$/).error(new Error('无效手机号'))
@@ -53,25 +53,25 @@ export const schemaChangeNickname = verify({
 
 // 修改个签
 export const schemaChangeSignature = verify({
-  signature
+  signature,
 })
 
 export const schemaMyVideo = verify({
   ...page,
-  state: Joi.number().min(0).max(2).error(new Error('无效状态'))
+  state: Joi.number().min(0).max(2).error(new Error('无效状态')),
 })
 
 export const schemaVideoFromId = verify({
-  videoId: Joi.string().max(64).error(new Error('无效视频'))
+  videoId: Joi.string().max(64).error(new Error('无效视频')),
 })
 
 export const schemaList = verify({
   ...page,
   keyWord,
-  banned: Joi.number().error(new Error('无效封禁'))
+  banned: Joi.number().error(new Error('无效封禁')),
 })
 
 export const schemaBanned = verify({
   userId: Joi.number().required().error(new Error('无效用户')),
-  banned: Joi.number().required().error(new Error('无效封禁'))
+  banned: Joi.number().required().error(new Error('无效封禁')),
 })

@@ -1,5 +1,4 @@
 import flq from '../../db'
-import { like } from '../../db/table'
 
 export async function removeLike(videoId: string) {
   await flq.from('`like`').where({
