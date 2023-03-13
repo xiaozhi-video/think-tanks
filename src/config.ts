@@ -30,7 +30,6 @@ export const sms = {
 export const os = {
   accessKey: process.env.ACCESS_KEY as string,
   secretKey: process.env.SECRET_KEY as string,
-  asstesBaseUrl: 'http://rpr4o1nwc.hd-bkt.clouddn.com/',
   imageAsstesBaseUrl: 'http://image.think-tanks.flycran.com/',
   videoAsstesBaseUrl: 'http://video.think-tanks.flycran.com/'
 }

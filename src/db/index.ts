@@ -16,7 +16,7 @@ flq.setModel({
       toArray: true,
     },
     avatar: {
-      postreat: value => os.asstesBaseUrl + value + '!user.avatar',
+      postreat: value => os.imageAsstesBaseUrl + value + '!user.avatar',
     },
     videoCount: {
       async get(row) {
@@ -29,7 +29,7 @@ flq.setModel({
   },
   admin: {
     photo: {
-      postreat: value => os.asstesBaseUrl + value + '!user.avatar',
+      postreat: value => os.imageAsstesBaseUrl + value + '!user.avatar',
     },
     permissions: {
       toArray: true,
