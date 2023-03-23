@@ -1,0 +1,205 @@
+/*
+ Navicat Premium Data Transfer
+
+ Source Server         : think-tanks
+ Source Server Type    : MySQL
+ Source Server Version : 80024
+ Source Host           : 47.100.96.69:60330
+ Source Schema         : think-tanks
+
+ Target Server Type    : MySQL
+ Target Server Version : 80024
+ File Encoding         : 65001
+
+ Date: 01/03/2023 16:25:02
+*/
+
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for admin
+-- ----------------------------
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin`  (
+  `adminId` int NOT NULL AUTO_INCREMENT,
+  `nickname` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '昵称',
+  `password` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '密码',
+  `permissions` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '权限',
+  `photo` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'defaultAvatar.jpeg' COMMENT '头像',
+  `authButton` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '按钮权限',
+  PRIMARY KEY (`adminId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for auth-button
+-- ----------------------------
+DROP TABLE IF EXISTS `auth-button`;
+CREATE TABLE `auth-button`  (
+  `authButton` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`authButton`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for bullet
+-- ----------------------------
+DROP TABLE IF EXISTS `bullet`;
+CREATE TABLE `bullet`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `videoId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `text` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `color` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '#ffffff',
+  `time` int NULL DEFAULT NULL,
+  `userId` int NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 103 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for carousel
+-- ----------------------------
+DROP TABLE IF EXISTS `carousel`;
+CREATE TABLE `carousel`  (
+  `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `image` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '图片地址',
+  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '跳转地址',
+  `index` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '索引',
+  `videoId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '视频id',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for classify
+-- ----------------------------
+DROP TABLE IF EXISTS `classify`;
+CREATE TABLE `classify`  (
+  `name` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `icon` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`name`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for collection
+-- ----------------------------
+DROP TABLE IF EXISTS `collection`;
+CREATE TABLE `collection`  (
+  `videoId` int NOT NULL,
+  `userId` int NOT NULL,
+  `createdAt` datetime NULL DEFAULT NULL,
+  PRIMARY KEY (`videoId`, `userId`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for comment
+-- ----------------------------
+DROP TABLE IF EXISTS `comment`;
+CREATE TABLE `comment`  (
+  `commentId` int NOT NULL AUTO_INCREMENT,
+  `userId` int NOT NULL,
+  `text` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '评论内容',
+  `videoId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '视频',
+  `replyId` int NULL DEFAULT NULL COMMENT '回复id',
+  `topCommentId` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '顶层评论id',
+  `isAuthor` tinyint NULL DEFAULT NULL COMMENT '源于视频作者',
+  `createdAt` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`commentId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 214 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for history
+-- ----------------------------
+DROP TABLE IF EXISTS `history`;
+CREATE TABLE `history`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `videoId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+  `createdAt` datetime NULL DEFAULT NULL,
+  `userId` int NULL DEFAULT NULL,
+  `deleteAt` tinyint NULL DEFAULT 0,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 167 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for like
+-- ----------------------------
+DROP TABLE IF EXISTS `like`;
+CREATE TABLE `like`  (
+  `videoId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `userId` int NOT NULL,
+  `createdAt` datetime NULL DEFAULT NULL,
+  `deleteAt` tinyint NULL DEFAULT 0,
+  PRIMARY KEY (`videoId`, `userId`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for permissions
+-- ----------------------------
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE `permissions`  (
+  `permissionId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `description` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `authButton` tinyint NOT NULL DEFAULT 0,
+  PRIMARY KEY (`permissionId`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for system-settings
+-- ----------------------------
+DROP TABLE IF EXISTS `system-settings`;
+CREATE TABLE `system-settings`  (
+  `classifyMaxNumber` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '最多上传多少分类',
+  `carouselMaxNumber` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for user
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`  (
+  `userId` int NOT NULL AUTO_INCREMENT,
+  `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '电话',
+  `signature` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '这个up很懒，暂时没有介绍。' COMMENT '个性签名',
+  `nickname` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '昵称',
+  `password` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '密码',
+  `avatar` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT 'defaultAvatar.jpeg' COMMENT '头像',
+  `permissions` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '权限',
+  `createdAt` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `banned` tinyint NULL DEFAULT 0 COMMENT '封号斗罗',
+  PRIMARY KEY (`userId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 33 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for video
+-- ----------------------------
+DROP TABLE IF EXISTS `video`;
+CREATE TABLE `video`  (
+  `videoId` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `userId` int NOT NULL,
+  `cover` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '封面',
+  `title` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '标题',
+  `describe` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '描述',
+  `classify` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '分类',
+  `collectionId` int NULL DEFAULT NULL COMMENT '合集id',
+  `videoUrl` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '视频地址',
+  `state` int NULL DEFAULT NULL COMMENT '状态[草稿,待审核,已发布]',
+  `likeCount` int NULL DEFAULT 0 COMMENT '点赞数量',
+  `readCount` int NOT NULL DEFAULT 0 COMMENT '阅读量',
+  `recommend` double NOT NULL DEFAULT 100 COMMENT '推荐权重',
+  `sortValue` double GENERATED ALWAYS AS ((((((`readCount` * 0.5) + `likeCount`) + 1) * `recommend`) / 100)) VIRTUAL COMMENT '排序指数' NULL,
+  `createdAt` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `updateAt` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `deleteAt` tinyint NULL DEFAULT 0 COMMENT '删除',
+  PRIMARY KEY (`videoId`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Table structure for video-collection
+-- ----------------------------
+DROP TABLE IF EXISTS `video-collection`;
+CREATE TABLE `video-collection`  (
+  `collectionId` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '标题',
+  `createdAt` datetime NULL DEFAULT NULL COMMENT '创建日期',
+  PRIMARY KEY (`collectionId`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+SET FOREIGN_KEY_CHECKS = 1;
